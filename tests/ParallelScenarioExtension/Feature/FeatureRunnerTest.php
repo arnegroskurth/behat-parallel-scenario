@@ -3,6 +3,7 @@
 namespace Tonic\Behat\ParallelScenarioExtension\Feature;
 
 use Behat\Gherkin\Node\FeatureNode;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Tonic\Behat\ParallelScenarioExtension\ScenarioInfo\ScenarioInfo;
 use Tonic\Behat\ParallelScenarioExtension\ScenarioInfo\ScenarioInfoExtractor;
@@ -15,7 +16,7 @@ use Tonic\ParallelProcessRunner\ParallelProcessRunner;
  *
  * @author kandelyabre <kandelyabre@gmail.com>
  */
-class FeatureRunnerTest extends \PHPUnit_Framework_TestCase
+class FeatureRunnerTest extends TestCase
 {
     /**
      * @return array
@@ -35,10 +36,10 @@ class FeatureRunnerTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetMaxParallelProcess($maxParallelProcess)
     {
-        $eventDispatcher = $this->getMock(EventDispatcherInterface::class);
-        $scenarioInfoExtractor = $this->getMock(ScenarioInfoExtractor::class);
-        $scenarioProcessFactory = $this->getMock(ScenarioProcessFactory::class);
-        $parallelProcessRunner = $this->getMock(ParallelProcessRunner::class, ['setMaxParallelProcess']);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $scenarioInfoExtractor = $this->createMock(ScenarioInfoExtractor::class);
+        $scenarioProcessFactory = $this->createMock(ScenarioProcessFactory::class);
+        $parallelProcessRunner = $this->createMock(ParallelProcessRunner::class);
 
         $parallelProcessRunner->expects($this->once())->method('setMaxParallelProcess')->with($maxParallelProcess);
 
@@ -100,18 +101,18 @@ class FeatureRunnerTest extends \PHPUnit_Framework_TestCase
      */
     public function testRun(array $scenarioGroups)
     {
-        $eventDispatcher = $this->getMock(EventDispatcherInterface::class);
-        $scenarioInfoExtractor = $this->getMock(ScenarioInfoExtractor::class, ['extract']);
-        $scenarioInfoExtractor->expects($this->once())->method('extract')->willReturn($scenarioGroups);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $scenarioInfoExtractor = $this->createConfiguredMock(ScenarioInfoExtractor::class, ['extract' => $scenarioGroups]);
+        $scenarioInfoExtractor->expects($this->once())->method('extract');
 
-        $scenarioProcessFactory = $this->getMock(ScenarioProcessFactory::class, ['make']);
+        $scenarioProcessFactory = $this->createMock(ScenarioProcessFactory::class);
 
         $index = 0;
         $processGroups = [];
         foreach ($scenarioGroups as $groupId => $scenarios) {
             $processGroups[$groupId] = [];
             foreach ($scenarios as $scenarioInfo) {
-                $process = $this->getMock(ScenarioProcess::class, null, [$scenarioInfo, '']);
+                $process = $this->createMock(ScenarioProcess::class);
                 $processGroups[$groupId][] = $process;
 
                 $scenarioProcessFactory->expects($this->at($index))->method('make')->with($scenarioInfo)->willReturn($process);
@@ -120,7 +121,7 @@ class FeatureRunnerTest extends \PHPUnit_Framework_TestCase
         }
         $scenarioProcessFactory->expects($this->exactly($index))->method('make');
 
-        $parallelProcessRunner = $this->getMock(ParallelProcessRunner::class, ['reset', 'add', 'run']);
+        $parallelProcessRunner = $this->createMock(ParallelProcessRunner::class);
 
         $parallelProcessRunner->expects($this->exactly(count($processGroups)))->method('reset')->willReturn($parallelProcessRunner);
         foreach ($processGroups as $index => $processes) {
@@ -131,7 +132,7 @@ class FeatureRunnerTest extends \PHPUnit_Framework_TestCase
         $parallelProcessRunner->expects($this->exactly(count($processGroups)))->method('add');
         $parallelProcessRunner->expects($this->exactly(count($processGroups)))->method('run')->willReturn($parallelProcessRunner);
 
-        $featureNode = $this->getMock(FeatureNode::class, [], [], '', false);
+        $featureNode = $this->createMock(FeatureNode::class);
 
         /** @var EventDispatcherInterface $eventDispatcher */
         /** @var ScenarioInfoExtractor $scenarioInfoExtractor */

@@ -2,6 +2,7 @@
 
 namespace Tonic\Behat\ParallelScenarioExtension\Listener;
 
+use PHPUnit\Framework\TestCase;
 use Tonic\Behat\ParallelScenarioExtension\Event\ParallelScenarioEventType;
 use Tonic\Behat\ParallelScenarioExtension\ScenarioProcess\ScenarioProcess;
 use Tonic\ParallelProcessRunner\Event\ProcessEvent;
@@ -12,7 +13,7 @@ use Tonic\ParallelProcessRunner\ParallelProcessRunner;
  *
  * @author kandelyabre <kandelyabre@gmail.com>
  */
-class StopOnFailureTest extends \PHPUnit_Framework_TestCase
+class StopOnFailureTest extends TestCase
 {
     /**
      * @see StopOnFailure::getSubscribedEvents
@@ -29,15 +30,18 @@ class StopOnFailureTest extends \PHPUnit_Framework_TestCase
      */
     public function testStopOnFailureWithError()
     {
-        $parallelProcessRunner = $this->getMock(ParallelProcessRunner::class, ['stop']);
+        $parallelProcessRunner = $this->createMock(ParallelProcessRunner::class);
         $parallelProcessRunner->expects($this->once())->method('stop');
 
-        $process = $this->getMock(ScenarioProcess::class, ['withError'], [], '', false);
+        $process = $this->createMock(ScenarioProcess::class);
         $process->expects($this->once())->method('withError')->willReturn(true);
 
-        $event = $this->getMock(ProcessEvent::class, null, [$process]);
+        $event = new ProcessEvent($process);
 
-        $listener = $this->getMock(StopOnFailure::class, ['terminate'], [$parallelProcessRunner]);
+        $listener = $this->getMockBuilder(StopOnFailure::class)
+            ->onlyMethods(['terminate'])
+            ->setConstructorArgs([$parallelProcessRunner])
+            ->getMock();
         $listener->expects($this->once())->method('terminate')->with(1);
 
         /** @var StopOnFailure $listener */
@@ -50,15 +54,18 @@ class StopOnFailureTest extends \PHPUnit_Framework_TestCase
      */
     public function testStopOnFailureWithoutError()
     {
-        $parallelProcessRunner = $this->getMock(ParallelProcessRunner::class, ['stop']);
+        $parallelProcessRunner = $this->createMock(ParallelProcessRunner::class);
         $parallelProcessRunner->expects($this->never())->method('stop');
 
-        $process = $this->getMock(ScenarioProcess::class, ['withError'], [], '', false);
+        $process = $this->createMock(ScenarioProcess::class);
         $process->expects($this->once())->method('withError')->willReturn(false);
 
-        $event = $this->getMock(ProcessEvent::class, null, [$process]);
+        $event = new ProcessEvent($process);
 
-        $listener = $this->getMock(StopOnFailure::class, ['terminate'], [$parallelProcessRunner]);
+        $listener = $this->getMockBuilder(StopOnFailure::class)
+            ->onlyMethods(['terminate'])
+            ->setConstructorArgs([$parallelProcessRunner])
+            ->getMock();
         $listener->expects($this->never())->method('terminate');
 
         /** @var StopOnFailure $listener */

@@ -36,14 +36,14 @@ class ScenarioProcess extends Process
      * @param array|null   $env
      * @param null         $input
      * @param int          $timeout
-     * @param array        $options
      */
-    public function __construct(ScenarioInfo $scenarioInfo, $commandline, $cwd = null, array $env = null, $input = null, $timeout = 0, array $options = array())
+    public function __construct(ScenarioInfo $scenarioInfo, $commandline, $cwd = null, array $env = null, $input = null, $timeout = 0)
     {
         $this->scenarioInfo = $scenarioInfo;
         $this->commandLine = $commandline;
         $this->optionCollection = new ProcessOptionCollection();
-        parent::__construct($this->getCommandLineWithOptions(), $cwd, $env, $input, $timeout, $options);
+
+        parent::__construct($this->getCommandLineWithOptions(), $cwd, $env, $input, $timeout);
     }
 
     /**
@@ -83,7 +83,7 @@ class ScenarioProcess extends Process
     /**
      * {@inheritdoc}
      */
-    public function start(callable $callback = null)
+    public function start(callable $callback = null, array $env = [])
     {
         $this->updateCommandLine();
         parent::start($callback);

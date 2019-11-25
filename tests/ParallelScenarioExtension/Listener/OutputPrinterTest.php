@@ -2,6 +2,7 @@
 
 namespace Tonic\Behat\ParallelScenarioExtension\Listener;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Tonic\Behat\ParallelScenarioExtension\Event\ParallelScenarioEventType;
@@ -13,7 +14,7 @@ use Tonic\ParallelProcessRunner\Event\ProcessEvent;
  *
  * @author kandelyabre <kandelyabre@gmail.com>
  */
-class OutputPrinterTest extends \PHPUnit_Framework_TestCase
+class OutputPrinterTest extends TestCase
 {
     /**
      * @see OutputPrinter::getSubscribedEvents
@@ -31,13 +32,13 @@ class OutputPrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testBeforeStart()
     {
-        $output = $this->getMock(ConsoleOutput::class, ['writeln']);
+        $output = $this->createMock(ConsoleOutput::class);
         $output->expects($this->once())->method('writeln')->with('START ::: command');
 
-        $process = $this->getMock(ScenarioProcess::class, ['getCommandLine'], [], '', false);
+        $process = $this->createMock(ScenarioProcess::class);
         $process->expects($this->once())->method('getCommandLine')->willReturn('command');
 
-        $event = $this->getMock(ProcessEvent::class, null, [$process]);
+        $event = new ProcessEvent($process);
 
         /** @var OutputInterface $output */
         /** @var ProcessEvent $event */
@@ -79,13 +80,13 @@ class OutputPrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testAfterStop($error, array $expected)
     {
-        $output = $this->getMock(ConsoleOutput::class, ['writeln']);
+        $output = $this->createMock(ConsoleOutput::class);
         foreach ($expected as $index => $line) {
             $output->expects($this->at($index))->method('writeln')->with($line);
         }
         $output->expects($this->exactly(count($expected)))->method('writeln');
 
-        $process = $this->getMock(ScenarioProcess::class, ['withError', 'getOutput', 'getErrorOutput'], [], '', false);
+        $process = $this->createMock(ScenarioProcess::class);
         $process->expects($this->once())->method('withError')->willReturn($error);
         $process->expects($this->once())->method('getOutput')->willReturn('output');
         if ($error) {
@@ -94,7 +95,7 @@ class OutputPrinterTest extends \PHPUnit_Framework_TestCase
             $process->expects($this->never())->method('getErrorOutput');
         }
 
-        $event = $this->getMock(ProcessEvent::class, null, [$process]);
+        $event = new ProcessEvent($process);
 
         /** @var OutputInterface $output */
         /** @var ProcessEvent $event */

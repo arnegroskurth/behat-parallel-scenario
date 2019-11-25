@@ -2,12 +2,14 @@
 
 namespace Tonic\Behat\ParallelScenarioExtension\ScenarioInfo;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * Class ScenarioInfoTest.
  *
  * @author kandelyabre <kandelyabre@gmail.com>
  */
-class ScenarioInfoTest extends \PHPUnit_Framework_TestCase
+class ScenarioInfoTest extends TestCase
 {
     /**
      * @see ScenarioInfo::__toString

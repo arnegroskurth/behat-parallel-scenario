@@ -2,6 +2,7 @@
 
 namespace Tonic\Behat\ParallelScenarioExtension\ScenarioProcess;
 
+use PHPUnit\Framework\TestCase;
 use Tonic\Behat\ParallelScenarioExtension\Event\ParallelScenarioEventType;
 use Tonic\Behat\ParallelScenarioExtension\ScenarioInfo\ScenarioInfo;
 use Tonic\Behat\ParallelScenarioExtension\ScenarioProcess\Option\ProcessOptionScalar;
@@ -12,7 +13,7 @@ use Tonic\ParallelProcessRunner\Event\ProcessEvent;
  *
  * @author kandelyabre <kandelyabre@gmail.com>
  */
-class ScenarioProcessProfileBalanceTest extends \PHPUnit_Framework_TestCase
+class ScenarioProcessProfileBalanceTest extends TestCase
 {
     /**
      * @see ScenarioProcessProfileBalance::getSubscribedEvents
@@ -88,9 +89,18 @@ class ScenarioProcessProfileBalanceTest extends \PHPUnit_Framework_TestCase
     {
         $events = [];
         while ($amount--) {
-            $scenarioInfo = $this->getMock(ScenarioInfo::class, null, [], '', false);
-            $process = $this->getMock(ScenarioProcess::class, null, [$scenarioInfo, (string) $scenarioInfo]);
-            $event = $this->getMock(ProcessEvent::class, null, [$process]);
+            $scenarioInfo = $this->getMockBuilder(ScenarioInfo::class)
+                ->disableOriginalConstructor()
+                ->onlyMethods([])
+                ->getMock();
+            $process = $this->getMockBuilder(ScenarioProcess::class)
+                ->setConstructorArgs([$scenarioInfo, (string) $scenarioInfo])
+                ->onlyMethods([])
+                ->getMock();
+            $event = $this->getMockBuilder(ProcessEvent::class)
+                ->setConstructorArgs([$process])
+                ->onlyMethods([])
+                ->getMock();
 
             $events[] = $event;
         }

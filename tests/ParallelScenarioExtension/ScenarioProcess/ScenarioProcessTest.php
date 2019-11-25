@@ -2,6 +2,7 @@
 
 namespace Tonic\Behat\ParallelScenarioExtension\ScenarioProcess;
 
+use PHPUnit\Framework\TestCase;
 use Tonic\Behat\ParallelScenarioExtension\ScenarioInfo\ScenarioInfo;
 use Tonic\Behat\ParallelScenarioExtension\ScenarioProcess\Option\ProcessOptionInterface;
 use Tonic\Behat\ParallelScenarioExtension\ScenarioProcess\Option\ProcessOptionOut;
@@ -12,7 +13,7 @@ use Tonic\Behat\ParallelScenarioExtension\ScenarioProcess\Option\ProcessOptionSc
  *
  * @author kandelyabre <kandelyabre@gmail.com>
  */
-class ScenarioProcessTest extends \PHPUnit_Framework_TestCase
+class ScenarioProcessTest extends TestCase
 {
     /**
      * @return array
@@ -76,7 +77,10 @@ class ScenarioProcessTest extends \PHPUnit_Framework_TestCase
      */
     public function testWithError($withError)
     {
-        $process = $this->getMock(ScenarioProcess::class, ['getExitCode'], [], '', false);
+        $process = $this->getMockBuilder(ScenarioProcess::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getExitCode'])
+            ->getMock();
         $process->expects($this->once())->method('getExitCode')->willReturn($withError);
         /** @var ScenarioProcess $process */
         $this->assertEquals($withError, $process->withError());
@@ -124,7 +128,10 @@ class ScenarioProcessTest extends \PHPUnit_Framework_TestCase
     {
         $command = sprintf('%s', PHP_BINARY);
 
-        $process = $this->getMock(ScenarioProcess::class, ['updateCommandLine'], [new ScenarioInfo('file', 0), $command]);
+        $process = $this->getMockBuilder(ScenarioProcess::class)
+            ->setConstructorArgs([new ScenarioInfo('file', 0), $command])
+            ->onlyMethods(['updateCommandLine'])
+            ->getMock();
         $process->expects($this->once())->method('updateCommandLine');
         /** @var ScenarioProcess $process */
         $process->$method();

@@ -3,6 +3,7 @@
 namespace Tonic\Behat\ParallelScenarioExtension\Cli;
 
 use Behat\Gherkin\Node\FeatureNode;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -20,16 +21,19 @@ use Tonic\Behat\ParallelScenarioExtension\ScenarioProcess\ScenarioProcessFactory
  *
  * @author kandelyabre <kandelyabre@gmail.com>
  */
-class ParallelScenarioControllerTest extends \PHPUnit_Framework_TestCase
+class ParallelScenarioControllerTest extends TestCase
 {
     /**
      * @see ParallelScenarioController::configure
      */
     public function testConfigure()
     {
-        $controller = $this->getMock(ParallelScenarioController::class, null, [], '', false);
+        $controller = $this->getMockBuilder(ParallelScenarioController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
 
-        $command = $this->getMock(Command::class, ['addOption'], [], '', false);
+        $command = $this->createMock(Command::class);
         $command->expects($this->once())->method('addOption')
             ->with('parallel-process', null, InputOption::VALUE_OPTIONAL, 'Max parallel processes amount', 1);
 
@@ -48,7 +52,7 @@ class ParallelScenarioControllerTest extends \PHPUnit_Framework_TestCase
                 5,
                 'locator',
                 [
-                    $this->getMock(FeatureNode::class, [], [], '', false),
+                    $this->createMock(FeatureNode::class),
                 ],
                 0,
             ],
@@ -64,8 +68,8 @@ class ParallelScenarioControllerTest extends \PHPUnit_Framework_TestCase
                 3,
                 'locator',
                 [
-                    $this->getMock(FeatureNode::class, [], [], '', false),
-                    $this->getMock(FeatureNode::class, [], [], '', false),
+                    $this->createMock(FeatureNode::class),
+                    $this->createMock(FeatureNode::class),
                 ],
                 1,
             ],
@@ -84,17 +88,17 @@ class ParallelScenarioControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function testExecuteMultiProcess($parallelProcess, $paths, array $featureNodes, $expectedResult)
     {
-        $inputDefinition = $this->getMock(InputDefinition::class);
+        $inputDefinition = $this->createMock(InputDefinition::class);
 
-        $input = $this->getMock(ArgvInput::class, ['getArgument', 'getOption']);
+        $input = $this->createMock(ArgvInput::class);
         $input->expects($this->once())->method('getOption')
             ->with(ParallelScenarioController::OPTION_PARALLEL_PROCESS)->willReturn($parallelProcess);
         $input->expects($this->once())->method('getArgument')
             ->with('paths')->willReturn($paths);
 
-        $output = $this->getMock(ConsoleOutput::class);
+        $output = $this->createMock(ConsoleOutput::class);
 
-        $featureRunner = $this->getMock(FeatureRunner::class, ['run', 'setMaxParallelProcess'], [], '', false);
+        $featureRunner = $this->createMock(FeatureRunner::class);
         $featureRunner->expects($this->once())->method('setMaxParallelProcess')
             ->with($parallelProcess);
         foreach ($featureNodes as $index => $featureNode) {
@@ -102,26 +106,26 @@ class ParallelScenarioControllerTest extends \PHPUnit_Framework_TestCase
         }
         $featureRunner->expects($this->exactly(count($featureNodes)))->method('run');
 
-        $featureExtractor = $this->getMock(FeatureExtractor::class, ['extract'], [], '', false);
+        $featureExtractor = $this->createMock(FeatureExtractor::class);
         $featureExtractor->expects($this->once())->method('extract')
             ->with($paths)->willReturn($featureNodes);
 
-        $scenarioProcessFactory = $this->getMock(ScenarioProcessFactory::class, ['init'], [], '', false);
+        $scenarioProcessFactory = $this->createMock(ScenarioProcessFactory::class);
 
-        $outputPrinter = $this->getMock(OutputPrinter::class, ['init'], [], '', false);
+        $outputPrinter = $this->createMock(OutputPrinter::class);
         $outputPrinter->expects($this->once())->method('init')
             ->with($output);
 
-        $command = $this->getMock(Command::class, ['getDefinition', 'addOption'], [], '', false);
+        $command = $this->createMock(Command::class);
         $command->expects($this->once())->method('getDefinition')
             ->willReturn($inputDefinition);
 
-        $controller = $this->getMock(ParallelScenarioController::class, null, [
+        $controller = new ParallelScenarioController(
             $featureRunner,
             $featureExtractor,
             $scenarioProcessFactory,
-            $outputPrinter,
-        ]);
+            $outputPrinter
+        );
 
         /** @var ParallelScenarioController $controller */
         /** @var Command $command */
@@ -154,38 +158,38 @@ class ParallelScenarioControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function testExecuteSingleProcess($parallelProcess)
     {
-        $inputDefinition = $this->getMock(InputDefinition::class);
+        $inputDefinition = $this->createMock(InputDefinition::class);
 
-        $input = $this->getMock(ArgvInput::class, ['getArgument', 'getOption']);
+        $input = $this->createMock(ArgvInput::class);
         $input->expects($this->once())->method('getOption')
             ->with(ParallelScenarioController::OPTION_PARALLEL_PROCESS)->willReturn($parallelProcess);
         $input->expects($this->once())->method('getArgument')
             ->with('paths');
 
-        $output = $this->getMock(ConsoleOutput::class);
+        $output = $this->createMock(ConsoleOutput::class);
 
-        $featureRunner = $this->getMock(FeatureRunner::class, ['run', 'setMaxParallelProcess'], [], '', false);
+        $featureRunner = $this->createMock(FeatureRunner::class);
         $featureRunner->expects($this->never())->method('setMaxParallelProcess');
         $featureRunner->expects($this->never())->method('run');
 
-        $featureExtractor = $this->getMock(FeatureExtractor::class, ['extract'], [], '', false);
+        $featureExtractor = $this->createMock(FeatureExtractor::class);
         $featureExtractor->expects($this->never())->method('extract');
 
-        $scenarioProcessFactory = $this->getMock(ScenarioProcessFactory::class, ['init'], [], '', false);
+        $scenarioProcessFactory = $this->createMock(ScenarioProcessFactory::class);
 
-        $outputPrinter = $this->getMock(OutputPrinter::class, ['init'], [], '', false);
+        $outputPrinter = $this->createMock(OutputPrinter::class);
         $outputPrinter->expects($this->never())->method('init');
 
-        $command = $this->getMock(Command::class, ['getDefinition', 'addOption'], [], '', false);
+        $command = $this->createMock(Command::class);
         $command->expects($this->once())->method('getDefinition')
             ->willReturn($inputDefinition);
 
-        $controller = $this->getMock(ParallelScenarioController::class, null, [
+        $controller = new ParallelScenarioController(
             $featureRunner,
             $featureExtractor,
             $scenarioProcessFactory,
-            $outputPrinter,
-        ]);
+            $outputPrinter
+        );
 
         /** @var ParallelScenarioController $controller */
         /** @var Command $command */

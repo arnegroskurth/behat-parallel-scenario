@@ -6,6 +6,7 @@ use Behat\Gherkin\Keywords\ArrayKeywords;
 use Behat\Gherkin\Lexer;
 use Behat\Gherkin\Node\FeatureNode;
 use Behat\Gherkin\Parser;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -14,7 +15,7 @@ use Symfony\Component\Finder\SplFileInfo;
  *
  * @author kandelyabre <kandelyabre@gmail.com>
  */
-class ScenarioInfoExtractorTest extends \PHPUnit_Framework_TestCase
+class ScenarioInfoExtractorTest extends TestCase
 {
     /**
      * @return array

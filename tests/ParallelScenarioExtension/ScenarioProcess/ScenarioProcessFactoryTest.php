@@ -2,6 +2,7 @@
 
 namespace Tonic\Behat\ParallelScenarioExtension\ScenarioProcess;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,7 +14,7 @@ use Tonic\Behat\ParallelScenarioExtension\ScenarioInfo\ScenarioInfo;
  *
  * @author kandelyabre <kandelyabre@gmail.com>
  */
-class ScenarioProcessFactoryTest extends \PHPUnit_Framework_TestCase
+class ScenarioProcessFactoryTest extends TestCase
 {
     /**
      * @return array
